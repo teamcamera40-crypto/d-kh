@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Keuangan Khaidir - Elegant Theme</title>
+    <link rel="shortcut icon" href="logo5.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @font-face {
+            font-family: 'GojekFont';
+            src: local('Maison Neue'), local('Inter'), local('Segoe UI'), sans-serif;
+        }
+
+        :root {
+            /* Warna Latar Belakang Utama - Hijau Tua Elegant (DARK MODE DEFAULT) */
+            --bg-app: #01413C; 
+            --bg-body: #01312C; 
+            --card-bg: #01514C; 
+            --text-main: #C1F58A; /* Neon Lemon */
+            --text-secondary: #FFFFFF; 
+            --text-muted: #B0B0B0; 
+            --btn-bg: #C1F58A; 
+            --btn-text: #01413C; 
+            --border-color: #01615C;
+            --gojek-green: #00AA13; 
+            --danger: #EE2737;
+            --saving: #00AED6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --modal-overlay: rgba(0,0,0,0.8);
+        }
+
+        [data-theme="light"] {
+            /* Warna Latar Belakang Utama - Bersih & Segar (LIGHT MODE) */
+            --bg-app: #F4F7F6;
+            --bg-body: #E9EFEC;
+            --card-bg: #FFFFFF;
+            --text-main: #01413C; /* Hijau Tua untuk angka saldo agar kontras di latar putih */
+            --text-secondary: #121212; /* Hitam keabuan untuk teks biasa */
+            --text-muted: #666666; /* Abu-abu sedang */
+            --btn-bg: #01413C; /* Tombol Hijau Tua */
+            --btn-text: #FFFFFF; /* Teks tombol putih */
+            --border-color: #E0E8E5;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --modal-overlay: rgba(0,0,0,0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'GojekFont', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--bg-app);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* Header Bergaya Elegant */
+        .app-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 25px 20px 40px 20px;
+            background-color: var(--bg-body); color: var(--text-secondary);
+            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+            margin-bottom: -15px; border-bottom: 1px solid var(--border-color);
+        }
+        .header-title { font-size: 1.1rem; font-weight: 800; color: var(--text-secondary); }
+        .header-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        
+        .theme-btn {
+            background: rgba(128, 128, 128, 0.2);
+            border: none; color: var(--text-secondary); padding: 8px 12px;
+            border-radius: 50px; cursor: pointer; font-size: 0.8rem; font-weight: bold;
+        }
+        [data-theme="light"] .theme-btn { background: rgba(0, 0, 0, 0.05); }
+
+        /* Kartu Saldo Utama (Gaya Baru) */
+        .gopay-card {
+            background-color: var(--card-bg); margin: 0 20px; border-radius: 16px; padding: 20px;
+            color: var(--text-secondary); position: relative; z-index: 2; box-shadow: var(--shadow);
+            border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px;
+        }
+        .gopay-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
+        .gopay-balance { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .gopay-actions {
+            display: flex; justify-content: space-between; margin-top: 15px;
+            background: rgba(128, 128, 128, 0.1); padding: 10px; border-radius: 12px;
+        }
+        .action-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; flex: 1; }
+
+        /* Sections */
+        .section { padding: 20px; }
+        .card {
+            background-color: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 15px;
+            box-shadow: var(--shadow); border: 1px solid var(--border-color);
+        }
+        .card-title { font-size: 1rem; font-weight: 800; margin-bottom: 15px; color: var(--text-secondary); }
+
+        /* Source Grid */
+        .source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .source-item {
+            background-color: var(--bg-app); border: 1px solid var(--border-color);
+            padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 5px;
+        }
+        .source-header { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: bold; color: var(--text-muted); }
+        .source-bal { font-size: 1.1rem; font-weight: 800; color: var(--text-secondary); }
+        .source-stats { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 600; }
+        .stat-in { color: var(--gojek-green); }
+        .stat-out { color: var(--danger); }
+
+        .chart-wrapper { position: relative; height: 200px; width: 100%; }
+
+        /* Form Inputs */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 6px; color: var(--text-muted); font-weight: 600; }
+        input, select, textarea {
+            width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border-color);
+            background-color: var(--bg-app); color: var(--text-secondary); font-size: 0.95rem; outline: none;
+        }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); }
+        input[type="date"], input[type="month"] { color-scheme: dark; }
+        [data-theme="light"] input[type="date"], [data-theme="light"] input[type="month"] { color-scheme: light; }
+
+        /* Tombol */
+        .btn-primary {
+            background-color: var(--btn-bg); color: var(--btn-text); border: none; width: 100%; padding: 14px;
+            border-radius: 50px; font-size: 1rem; font-weight: 800; cursor: pointer; margin-top: 10px;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* Laporan & Riwayat */
+        .history-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 12px;
+            background-color: var(--bg-app); border-radius: 12px; border: 1px solid var(--border-color);
+        }
+        .history-info { display: flex; align-items: center; gap: 10px; }
+        .history-icon { font-size: 1.5rem; }
+        .history-desc { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); }
+        .history-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        .history-amount { font-size: 0.9rem; font-weight: 800; text-align: right; }
+        .history-actions { display: flex; gap: 5px; align-items: center; }
+        .btn-edit { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; padding: 2px 5px; border-radius: 4px;}
+        .btn-edit:hover { color: var(--text-main); background: rgba(128, 128, 128, 0.1); }
+        
+        .empty-state { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px 0; }
+
+        /* Modal Edit */
+        .modal {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: var(--modal-overlay);
+        }
+        .modal-content {
+            background-color: var(--card-bg); margin: 15% auto; padding: 20px;
+            border: 1px solid var(--border-color); border-radius: 16px; width: 80%; max-width: 400px;
+            color: var(--text-secondary);
+        }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover, .close:focus { color: var(--text-main); text-decoration: none; cursor: pointer; }
+
+        /* Bottom Sticky Nav */
+        .bottom-bar {
+            position: fixed; bottom: 0; width: 100%; max-width: 480px; background-color: var(--card-bg);
+            padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; z-index: 10;
+        }
+        .btn-save { background-color: var(--btn-bg); color: var(--btn-text); border: none; width: 100%; padding: 14px; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .btn-save:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-header">
+        <div>
+            <div class="header-title">Keuangan Khaidir</div>
+            <div class="header-date" id="currentDate"></div>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()">🌓 Tema</button>
+    </div>
+
+    <div class="gopay-card">
+        <div class="gopay-title">Total Kekayaan (Semua Sumber)</div>
+        <div class="gopay-balance" id="sisaSaldo">Rp 0</div>
+        
+        <div class="gopay-actions">
+            <div class="action-item"><span style="font-size: 1.2rem;">⬆️</span><span id="topIncome">Rp 0</span></div>
+            <div class="action-item" style="border-left: 1px solid var(--border-color); border-right: 1px solid var(--border-color);">
+                <span style="font-size: 1.2rem;">⬇️</span><span id="topExpense">Rp 0</span>
+            </div>
+            <div class="action-item"><span style="font-size: 1.2rem;">🛡️</span><span id="topSaving">Rp 0</span></div>
+        </div>
+    </div>
+
+    <div class="section">
+        
+        <div class="card">
+            <div class="card-title">Rincian Sumber Dana</div>
+            <div class="source-grid">
+                <div class="source-item">
+                    <div class="source-header">💵 Tunai (Cash)</div>
+                    <div class="source-bal" id="bal-cash">Rp 0</div>
+                    <div class="source-stats">
+                        <span class="stat-in">In: <span id="in-cash">0</span></span>
+                        <span class="stat-out">Out: <span id="out-cash">0</span></span>
+                    </div>
+                </div>
+                <div class="source-item">
+                    <div class="source-header">🏦 Bank BNI</div>
+                    <div class="source-bal" id="bal-bni">Rp 0</div>
+                    <div class="source-stats">
+                        <span class="stat-in">In: <span id="in-bni">0</span></span>
+                        <span class="stat-out">Out: <span id="out-bni">0</span></span>
+                    </div>
+                </div>
+                <div class="source-item">
+                    <div class="source-header">🏦 Bank BRI</div>
+                    <div class="source-bal" id="bal-bri">Rp 0</div>
+                    <div class="source-stats">
+                        <span class="stat-in">In: <span id="in-bri">0</span></span>
+                        <span class="stat-out">Out: <span id="out-bri">0</span></span>
+                    </div>
+                </div>
+                <div class="source-item">
+                    <div class="source-header">🌊 SeaBank</div>
+                    <div class="source-bal" id="bal-seabank">Rp 0</div>
+                    <div class="source-stats">
+                        <span class="stat-in">In: <span id="in-seabank">0</span></span>
+                        <span class="stat-out">Out: <span id="out-seabank">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Catat Transaksi Baru</div>
+            <div class="form-group">
+                <label>Sumber Dana</label>
+                <select id="inputSource">
+                    <option value="cash">💵 Tunai (Cash)</option>
+                    <option value="bni">🏦 Bank BNI</option>
+                    <option value="bri">🏦 Bank BRI</option>
+                    <option value="seabank">🌊 SeaBank</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jenis Transaksi</label>
+                <select id="inputType">
+                    <option value="pemasukan">🟢 Pemasukan (Uang Masuk)</option>
+                    <option value="pengeluaran">🔴 Pengeluaran (Uang Keluar)</option>
+                    <option value="saving">🔵 Saving / Tabungan</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tanggal Transaksi</label>
+                <input type="date" id="inputDate">
+            </div>
+            <div class="form-group">
+                <label>Nominal (Rp)</label>
+                <input type="number" id="inputAmount" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Keterangan Tambahan</label>
+                <input type="text" id="inputDesc" placeholder="Contoh: Makan siang, Gaji, dll">
+            </div>
+            <button class="btn-primary" onclick="addTransaction()">Konfirmasi Catat</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Filter & Statistik Laporan</div>
+            <div class="form-group">
+                <select id="filterType" onchange="changeFilterMode()">
+                    <option value="all">Semua Data (Keseluruhan)</option>
+                    <option value="date">Berdasarkan Tanggal Tertentu</option>
+                    <option value="month">Berdasarkan Bulan Tertentu</option>
+                </select>
+            </div>
+            <div class="form-group" id="filterDateGroup" style="display: none;">
+                <input type="date" id="filterDateValue" onchange="renderUI()">
+            </div>
+            <div class="form-group" id="filterMonthGroup" style="display: none;">
+                <input type="month" id="filterMonthValue" onchange="renderUI()">
+            </div>
+            <div class="chart-wrapper" style="margin-top: 20px;">
+                <canvas id="financeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Riwayat Transaksi (Sesuai Filter)</div>
+            <div id="historyList" class="history-list">
+                </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 40px;">
+            <div class="card-title">Target & Planning</div>
+            <textarea id="planningText" rows="3" placeholder="Tulis rencana keuanganmu di sini..."></textarea>
+        </div>
+
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h3>Edit Transaksi</h3>
+            <br>
+            <input type="hidden" id="editId">
+            <div class="form-group">
+                <label>Sumber Dana</label>
+                <select id="editSource">
+                    <option value="cash">💵 Tunai (Cash)</option>
+                    <option value="bni">🏦 Bank BNI</option>
+                    <option value="bri">🏦 Bank BRI</option>
+                    <option value="seabank">🌊 SeaBank</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Jenis Transaksi</label>
+                <select id="editType">
+                    <option value="pemasukan">🟢 Pemasukan</option>
+                    <option value="pengeluaran">🔴 Pengeluaran</option>
+                    <option value="saving">🔵 Saving</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" id="editDate">
+            </div>
+            <div class="form-group">
+                <label>Nominal (Rp)</label>
+                <input type="number" id="editAmount" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Keterangan</label>
+                <input type="text" id="editDesc">
+            </div>
+            <button class="btn-primary" onclick="saveEditedTransaction()">Simpan Perubahan</button>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <button class="btn-save" onclick="saveData()">💾 Simpan Semua Data</button>
+    </div>
+</div>
+
+<script>
+    let transactions = [];
+    let myChart;
+
+    const sourceNames = {
+        'cash': 'Tunai',
+        'bni': 'BNI',
+        'bri': 'BRI',
+        'seabank': 'SeaBank'
+    };
+
+    function setTodayDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('inputDate').value = today;
+    }
+
+    function updateDateText() {
+        const dateElement = document.getElementById('currentDate');
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = new Date().toLocaleDateString('id-ID', options);
+    }
+
+    // --- FUNGSI TEMA (BARU) ---
+    function toggleTheme() {
+        const body = document.documentElement;
+        if (body.getAttribute('data-theme') === 'light') {
+            body.removeAttribute('data-theme');
+            localStorage.setItem('theme_elegant', 'dark');
+        } else {
+            body.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme_elegant', 'light');
+        }
+        updateChartColors();
+    }
+
+    function updateChartColors() {
+        if (!myChart) return;
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+        const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+        
+        myChart.options.plugins.legend.labels.color = textColor;
+        myChart.data.datasets[0].borderColor = borderColor;
+        myChart.update();
+    }
+    // --------------------------
+
+    function formatRupiahShort(angka) {
+        if (angka >= 1000000) return (angka / 1000000).toFixed(1) + 'Jt';
+        if (angka >= 1000) return (angka / 1000).toFixed(1) + 'rb';
+        return angka.toString();
+    }
+    
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    }
+
+    function changeFilterMode() {
+        const mode = document.getElementById('filterType').value;
+        document.getElementById('filterDateGroup').style.display = (mode === 'date') ? 'block' : 'none';
+        document.getElementById('filterMonthGroup').style.display = (mode === 'month') ? 'block' : 'none';
+        document.getElementById('filterDateValue').value = '';
+        document.getElementById('filterMonthValue').value = '';
+        renderUI();
+    }
+
+    function getFilteredData() {
+        const mode = document.getElementById('filterType').value;
+        const dateVal = document.getElementById('filterDateValue').value;
+        const monthVal = document.getElementById('filterMonthValue').value;
+
+        if (mode === 'all') return transactions;
+        
+        return transactions.filter(t => {
+            if (mode === 'date' && dateVal) return t.date === dateVal;
+            if (mode === 'month' && monthVal) return t.date.startsWith(monthVal);
+            return true;
+        });
+    }
+
+    function calculateTotals(dataArray) {
+        let pem = 0, peng = 0, sav = 0;
+        dataArray.forEach(t => {
+            if (t.type === 'pemasukan') pem += t.amount;
+            if (t.type === 'pengeluaran') peng += t.amount;
+            if (t.type === 'saving') sav += t.amount;
+        });
+        return { pemasukan: pem, pengeluaran: peng, saving: sav };
+    }
+
+    function calculateSourceBalances(dataArray) {
+        const sources = {
+            cash: { in: 0, out: 0 },
+            bni: { in: 0, out: 0 },
+            bri: { in: 0, out: 0 },
+            seabank: { in: 0, out: 0 }
+        };
+
+        dataArray.forEach(t => {
+            const s = t.source || 'cash';
+            if(sources[s]) {
+                if (t.type === 'pemasukan') sources[s].in += t.amount;
+                if (t.type === 'pengeluaran' || t.type === 'saving') sources[s].out += t.amount; 
+            }
+        });
+        return sources;
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('financeChart').getContext('2d');
+        const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+        const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pemasukan', 'Pengeluaran', 'Saving'],
+                datasets: [{
+                    data: [0, 0, 0],
+                    backgroundColor: ['#00AA13', '#EE2737', '#00AED6'], // Warna chart tetap di light/dark
+                    borderWidth: 2, 
+                    borderColor: borderColor, 
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { 
+                            color: textColor,
+                            usePointStyle: true, padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderUI() {
+        const globalTotals = calculateTotals(transactions);
+        let globalSisa = globalTotals.pemasukan - globalTotals.pengeluaran - globalTotals.saving;
+        document.getElementById('sisaSaldo').textContent = formatRupiah(globalSisa);
+        document.getElementById('topIncome').textContent = formatRupiahShort(globalTotals.pemasukan);
+        document.getElementById('topExpense').textContent = formatRupiahShort(globalTotals.pengeluaran);
+        document.getElementById('topSaving').textContent = formatRupiahShort(globalTotals.saving);
+
+        const sourceData = calculateSourceBalances(transactions);
+        ['cash', 'bni', 'bri', 'seabank'].forEach(s => {
+            const bal = sourceData[s].in - sourceData[s].out;
+            document.getElementById(`bal-${s}`).textContent = formatRupiah(bal);
+            document.getElementById(`in-${s}`).textContent = formatRupiahShort(sourceData[s].in);
+            document.getElementById(`out-${s}`).textContent = formatRupiahShort(sourceData[s].out);
+        });
+
+        const filteredData = getFilteredData();
+        const filteredTotals = calculateTotals(filteredData);
+
+        myChart.data.datasets[0].data = [filteredTotals.pemasukan, filteredTotals.pengeluaran, filteredTotals.saving];
+        myChart.update();
+
+        renderHistoryList(filteredData);
+    }
+
+    function renderHistoryList(dataArray) {
+        const listDiv = document.getElementById('historyList');
+        listDiv.innerHTML = '';
+
+        if (dataArray.length === 0) {
+            listDiv.innerHTML = '<div class="empty-state">Belum ada transaksi pada periode ini.</div>';
+            return;
+        }
+
+        const sortedData = [...dataArray].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        sortedData.forEach(t => {
+            let icon = '🟢'; let color = 'var(--gojek-green)'; let sign = '+';
+            if (t.type === 'pemasukan') { color = 'var(--gojek-green)'; }
+            if (t.type === 'pengeluaran') { icon = '🔴'; color = 'var(--danger)'; sign = '-'; }
+            if (t.type === 'saving') { icon = '🔵'; color = 'var(--saving)'; sign = '-'; }
+            
+            let sName = sourceNames[t.source] || 'Tunai';
+
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="history-info">
+                    <div class="history-icon">${icon}</div>
+                    <div>
+                        <div class="history-desc">${t.desc || 'Tanpa Keterangan'}</div>
+                        <div class="history-meta">${t.date} • ${sName}</div>
+                    </div>
+                </div>
+                <div class="history-actions">
+                    <div class="history-amount" style="color: ${color};">
+                        ${sign}${formatRupiah(t.amount)}
+                    </div>
+                    <button class="btn-edit" onclick="editTransaction(${t.id})">✏️</button>
+                </div>
+            `;
+            listDiv.appendChild(div);
+        });
+    }
+
+    function addTransaction() {
+        const source = document.getElementById('inputSource').value;
+        const type = document.getElementById('inputType').value;
+        const date = document.getElementById('inputDate').value;
+        const amount = parseFloat(document.getElementById('inputAmount').value);
+        const desc = document.getElementById('inputDesc').value;
+
+        if (!date) { alert('Pilih tanggal transaksi!'); return; }
+        if (isNaN(amount) || amount <= 0) { alert('Masukkan nominal uang yang benar!'); return; }
+
+        transactions.push({
+            id: Date.now(),
+            source: source,
+            date: date,
+            type: type,
+            amount: amount,
+            desc: desc
+        });
+        
+        document.getElementById('inputAmount').value = '';
+        document.getElementById('inputDesc').value = '';
+        
+        renderUI();
+    }
+
+    function editTransaction(id) {
+        const transaction = transactions.find(t => t.id === id);
+        if (!transaction) return;
+
+        document.getElementById('editId').value = transaction.id;
+        document.getElementById('editSource').value = transaction.source;
+        document.getElementById('editType').value = transaction.type;
+        document.getElementById('editDate').value = transaction.date;
+        document.getElementById('editAmount').value = transaction.amount;
+        document.getElementById('editDesc').value = transaction.desc;
+
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEditedTransaction() {
+        const id = parseInt(document.getElementById('editId').value);
+        const transactionIndex = transactions.findIndex(t => t.id === id);
+        if (transactionIndex === -1) return;
+
+        const source = document.getElementById('editSource').value;
+        const type = document.getElementById('editType').value;
+        const date = document.getElementById('editDate').value;
+        const amount = parseFloat(document.getElementById('editAmount').value);
+        const desc = document.getElementById('editDesc').value;
+
+        if (!date) { alert('Pilih tanggal!'); return; }
+        if (isNaN(amount) || amount <= 0) { alert('Masukkan nominal uang!'); return; }
+
+        transactions[transactionIndex] = {
+            id: id,
+            source: source,
+            date: date,
+            type: type,
+            amount: amount,
+            desc: desc
+        };
+
+        closeEditModal();
+        renderUI();
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('editModal');
+        if (event.target == modal) {
+            closeEditModal();
+        }
+    }
+
+    function saveData() {
+        const planning = document.getElementById('planningText').value;
+        localStorage.setItem('keuanganKhaidir_v3_elegant', JSON.stringify(transactions));
+        localStorage.setItem('planningKhaidir', planning);
+        alert('Data Keuangan berhasil disimpan! Semua perubahan Anda aman.');
+    }
+
+    function loadData() {
+        // Load Theme
+        const savedTheme = localStorage.getItem('theme_elegant');
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        }
+
+        // Load Data
+        const savedTransactions = localStorage.getItem('keuanganKhaidir_v3_elegant');
+        const savedPlanning = localStorage.getItem('planningKhaidir');
+
+        if (savedTransactions) {
+            transactions = JSON.parse(savedTransactions);
+        }
+
+        if (savedPlanning) { document.getElementById('planningText').value = savedPlanning; }
+    }
+
+    window.onload = function() {
+        updateDateText();
+        setTodayDate();
+        loadData();
+        initChart();
+        renderUI();
+    };
+</script>
+
+</body>
+</html>
